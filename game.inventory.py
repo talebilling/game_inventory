@@ -41,6 +41,7 @@ def merge_to_inventory(inv_to_merge):
     
 def export_inventory(dir_path, filename="export_inventory.csv"):
     export_file = open(dir_path + "/" + filename, "w+")
+    inventory_key_list = inventory.keys() 
     export_lines = list_convert_to_string(inventory_key_list)
     export_file.writelines(export_lines)
     export_file.close() 
@@ -63,6 +64,33 @@ def print_num_of_inv_items():
     total = sum(item_num_list)
     print("Total number of items:", total, "\n")
 
+def print_table(order=None):
+    inventory_items = order_inventory_items(order)
+    key_width = 5 + len(max(inventory.keys(), key=len))
+    value_width = 5 + len(str(max(inventory.values())))
+    print("\nInventory: ")
+    print("{} {}" .format("count".rjust(value_width), "item name".rjust(key_width)))
+    print("-" * (key_width + value_width))
+    for k, v in inventory_items:
+        v = str(v)
+        print("{} {}" .format(v.rjust(value_width), k.rjust(key_width)))
+    print("-" * (key_width + value_width))
+    
+    total_number_of_items = sum(inventory.values())
+    print("Total number of items:", total_number_of_items, "\n")
+
+def order_inventory_items(order):
+    inventory_items = inventory.items()
+    if order == "count,asc":
+        inventory_items = sorted(inventory.items(), key = lambda item: item[1])
+    elif order == "count,desc":
+        inventory_items = sorted(inventory.items(), key = lambda item: item[1], reverse=True)
+    elif order == "item name,asc":
+        inventory_items = sorted(inventory.items(), key = lambda item: item[0])
+    elif order == "item name,desc":
+        inventory_items = sorted(inventory.items(), key = lambda item: item[0], reverse=True)
+    return inventory_items
+
 
 #main
 #definitions
@@ -74,10 +102,10 @@ inventory = {'rope': 1,
 dragon_loot = ['gold coin', 'dagger', 'gold coin', 'gold coin', 'ruby']
 filename = "input_file.csv"
 dir_path = os.path.dirname(os.path.realpath(__file__))
-inventory_key_list = inventory.keys() 
 
 
 display_inventory(inventory)
 add_to_inventory(inventory, dragon_loot) 
 import_inventory(dir_path) #call import fun without arg, reach default
 export_inventory(dir_path)
+print_table("count,desc")
