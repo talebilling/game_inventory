@@ -2,6 +2,7 @@
 Game Inventory
 by Emese Billing, Oct 2016
 """
+import os 
 
 def add_to_inventory(inv, added_items): # todo rename item to item_key
     for item in added_items:
@@ -11,8 +12,8 @@ def add_to_inventory(inv, added_items): # todo rename item to item_key
             inv.update({item : 1})
     display_inventory(inventory)
 
-def import_inventory(filename="import_inventory.csv"): #put file path in code
-    database = open(filename, "r+")
+def import_inventory(dir_path, filename="import_inventory.csv"):
+    database = open(dir_path + "/" + filename, "r+")
     item_list = database.readlines()
     database.close()
     inv_to_merge = split_strings(item_list)
@@ -38,27 +39,30 @@ def merge_to_inventory(inv_to_merge):
             inventory.update({dic_key : inv_to_merge[dic_key]})
     display_inventory(inventory)
     
-def display_inventory(inv):
-    item_numbers = list(inv.values())
-    total_number_of_items = sum(item_numbers) 
-    print("\nInventory: ")
-    for k, v in inv.items():
-        print("{} {}" .format(v, k))
-    print("Total number of items:", total_number_of_items, "\n")
-
-def export_inventory(filename="export_inventory.csv"): #export all inventory items to a file
-    export_file = open(filename, "w+")
-    export_lines = list_convert_to_string()
+def export_inventory(dir_path, filename="export_inventory.csv"):
+    export_file = open(dir_path + "/" + filename, "w+")
+    export_lines = list_convert_to_string(inventory_key_list)
     export_file.writelines(export_lines)
     export_file.close() 
 
-def list_convert_to_string():
+def list_convert_to_string(inventory_key_list):
     first_line_to_export = "item_name,count\n"
     export_lines = [first_line_to_export]
-    dictionary_keys_list = inventory.keys()   
-    for key in dictionary_keys_list:
+    for key in inventory_key_list:
         export_lines.append(key + "," + str(inventory[key]) + "\n")
     return export_lines
+
+def display_inventory(inv):
+    print("\nInventory: ")
+    for k, v in inv.items():
+        print("{} {}" .format(v, k))
+    print_num_of_inv_items()
+    
+def print_num_of_inv_items():
+    item_num_list = list(inventory.values())
+    total = sum(item_num_list)
+    print("Total number of items:", total, "\n")
+
 
 #main
 #definitions
@@ -69,9 +73,11 @@ inventory = {'rope': 1,
             'arrow': 12}
 dragon_loot = ['gold coin', 'dagger', 'gold coin', 'gold coin', 'ruby']
 filename = "input_file.csv"
+dir_path = os.path.dirname(os.path.realpath(__file__))
+inventory_key_list = inventory.keys() 
+
 
 display_inventory(inventory)
 add_to_inventory(inventory, dragon_loot) 
-#calling the import function without argument, for reach default file
-import_inventory() 
-export_inventory()
+import_inventory(dir_path) #call import fun without arg, reach default
+export_inventory(dir_path)
