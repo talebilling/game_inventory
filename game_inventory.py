@@ -1,49 +1,44 @@
 """
-Game Inventory
-by Emese Billing, Oct 2016
+Game Inventory by Emese Billing, Oct 2016
 """
 import os 
 
+def push_to_inv(key, value):
+    if key in inventory:
+        inventory[key] += value
+    else: 
+        inventory[key] = value
+
 def add_to_inventory(inv, added_items):
     for item in added_items:
-        if inv.get(item):
-            inv[item] += 1
-        else:
-            inv.update({item : 1})
+        push_to_inv(item, 1)
 
 def import_inventory(filename="import_inventory.csv"):
-    database = open(dir_path + "/" + filename, "r+")
-    item_list = database.readlines()
-    database.close()
-    inv_to_merge = split_strings(item_list)
+    import_file = open(dir_path + "/" + filename, "r+")
+    imported_lines = import_file.readlines()
+    import_file.close()
+    inv_to_merge = convert_to_inv(imported_lines)
     merge_to_inventory(inv_to_merge)
 
-def split_strings(item_list):
-    item_list = item_list[1:]
-    item_list = [i.split(",") for i in item_list]
-    item_dic = dict(item_list)
-    dictionary_keys_list = item_dic.keys()
-    for dic_key in dictionary_keys_list:
-        value = item_dic.get(dic_key)
-        value = int(value.strip())
-        item_dic[dic_key] = value
-    return item_dic
+def convert_to_inv(imported_lines):
+    imported_lines = imported_lines[1:]
+    imported_lines = [i.split(",") for i in imported_lines]
+    new_inv = dict(imported_lines)
+    for key, value in new_inv.items():
+        new_inv[key] = int(value.strip())
+    return new_inv
 
-def merge_to_inventory(inv_to_merge):
-    dictionary_keys_list = inv_to_merge.keys()    
-    for dic_key in dictionary_keys_list:
-        if inventory.get(dic_key):
-            inventory[dic_key] += inv_to_merge[dic_key]
-        else: 
-            inventory.update({dic_key : inv_to_merge[dic_key]})
+def merge_to_inventory(inv_to_merge):  
+    for key, value in inv_to_merge.items():
+        push_to_inv(key, value)
     
 def export_inventory(filename="export_inventory.csv"):
     export_file = open(dir_path + "/" + filename, "w+")
-    export_lines = list_convert_to_string()
+    export_lines = create_export_lines()
     export_file.writelines(export_lines)
     export_file.close() 
 
-def list_convert_to_string():
+def create_export_lines():
     first_line_to_export = "item_name,count\n"
     export_lines = [first_line_to_export]
     for key, value in inventory.items():
@@ -66,11 +61,11 @@ def print_table(order=None):
     value_width = 5 + len(str(max(inventory.values())))
     print("\nInventory: ")
     print("{} {}" .format("count".rjust(value_width), "item name".rjust(key_width)))
-    print("-" * (key_width + value_width))
+    print("-" * (key_width + value_width + 1))
     for key, value in inventory_items:
         value = str(value)
         print("{} {}" .format(value.rjust(value_width), key.rjust(key_width)))
-    print("-" * (key_width + value_width))
+    print("-" * (key_width + value_width + 1))
     print_num_of_inv_items()
 
 def sort_inventory_items_by(order):
