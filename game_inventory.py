@@ -4,13 +4,12 @@ by Emese Billing, Oct 2016
 """
 import os 
 
-def add_to_inventory(inv, added_items): # todo rename item to item_key
+def add_to_inventory(inv, added_items):
     for item in added_items:
         if inv.get(item):
             inv[item] += 1
         else:
             inv.update({item : 1})
-    display_inventory(inventory)
 
 def import_inventory(filename="import_inventory.csv"):
     database = open(dir_path + "/" + filename, "r+")
@@ -37,67 +36,64 @@ def merge_to_inventory(inv_to_merge):
             inventory[dic_key] += inv_to_merge[dic_key]
         else: 
             inventory.update({dic_key : inv_to_merge[dic_key]})
-    display_inventory(inventory)
     
 def export_inventory(filename="export_inventory.csv"):
     export_file = open(dir_path + "/" + filename, "w+")
-    inventory_key_list = inventory.keys() 
-    export_lines = list_convert_to_string(inventory_key_list)
+    export_lines = list_convert_to_string()
     export_file.writelines(export_lines)
     export_file.close() 
 
-def list_convert_to_string(inventory_key_list):
+def list_convert_to_string():
     first_line_to_export = "item_name,count\n"
     export_lines = [first_line_to_export]
-    for key in inventory_key_list:
-        export_lines.append(key + "," + str(inventory[key]) + "\n")
+    for key, value in inventory.items():
+        export_lines.append(key + "," + str(value) + "\n")
     return export_lines
 
-def display_inventory(inv):
+def display_inventory():
     print("\nInventory: ")
-    for k, v in inv.items():
-        print("{} {}" .format(v, k))
+    for key, value in inventory.items():
+        print("{} {}" .format(value, key))
     print_num_of_inv_items()
     
 def print_num_of_inv_items():
-    item_num_list = list(inventory.values())
-    total = sum(item_num_list)
-    print("Total number of items:", total, "\n")
+    total_number_of_items = sum(inventory.values())
+    print("Total number of items:", total_number_of_items, "\n")
 
 def print_table(order=None):
-    inventory_items = order_inventory_items(order)
+    inventory_items = sort_inventory_items_by(order)
     key_width = 5 + len(max(inventory.keys(), key=len))
     value_width = 5 + len(str(max(inventory.values())))
     print("\nInventory: ")
     print("{} {}" .format("count".rjust(value_width), "item name".rjust(key_width)))
     print("-" * (key_width + value_width))
-    for k, v in inventory_items:
-        v = str(v)
-        print("{} {}" .format(v.rjust(value_width), k.rjust(key_width)))
+    for key, value in inventory_items:
+        value = str(value)
+        print("{} {}" .format(value.rjust(value_width), key.rjust(key_width)))
     print("-" * (key_width + value_width))
-    
-    total_number_of_items = sum(inventory.values())
-    print("Total number of items:", total_number_of_items, "\n")
+    print_num_of_inv_items()
 
-def order_inventory_items(order):
-    inventory_items = inventory.items()
+def sort_inventory_items_by(order):
+    sorted_items = inventory.items()
     if order == "count,asc":
-        inventory_items = sorted(inventory.items(), key = lambda item: item[1])
+        sorted_items = sorted(inventory.items(), key = lambda item: item[1])
     elif order == "count,desc":
-        inventory_items = sorted(inventory.items(), key = lambda item: item[1], reverse=True)
+        sorted_items = sorted(inventory.items(), key = lambda item: item[1], reverse=True)
     elif order == "item name,asc":
-        inventory_items = sorted(inventory.items(), key = lambda item: item[0])
+        sorted_items = sorted(inventory.items(), key = lambda item: item[0])
     elif order == "item name,desc":
-        inventory_items = sorted(inventory.items(), key = lambda item: item[0], reverse=True)
-    return inventory_items
+        sorted_items = sorted(inventory.items(), key = lambda item: item[0], reverse=True)
+    return sorted_items
 
 def demo():
     dragon_loot = ['gold coin', 'dagger', 'gold coin', 'gold coin', 'ruby']
     filename = "inventory_file.csv"
-    display_inventory(inventory)
+    display_inventory()
     add_to_inventory(inventory, dragon_loot) 
+    display_inventory()
     export_inventory(filename)
     import_inventory(filename)
+    display_inventory()
     print_table("count,desc")
 
 #definitions
